@@ -1,20 +1,16 @@
-import string
-from my_socket import send_message
+from read import tokenize_new_data
 
 def join_room(socket):
     read_buffer = ''
     loading = True
 
     while loading:
-        read_buffer += socket.recv(1024)
-        temp = string.split(read_buffer, '\n')
-        read_buffer = temp.pop()
-
+        temp, read_buffer = tokenize_new_data(socket, read_buffer)
         for line in temp:
             print(line)
             loading = not loading_complete(line)
 
-    send_message(socket, 'Successfully joined chat!')
+    socket.send_private_message('Successfully joined chat!')
 
 def loading_complete(line):
     if 'End of /NAMES list' in line:

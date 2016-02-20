@@ -6,10 +6,11 @@ or something similar DansGame
 
 ### Current priorities
 
-1. Refactor out the notified channel and messages to not point to my channel specifically
-2. Restructure `run.py` to be a bit more function-oriented
-3. Add tests/documentation
-4. Add new features and other fun stuff!
+1. Add tests/documentation
+2. Organize commands into those only the broadcaster can use vs public commands
+3. Codify Twitch IRC message formats to allow the system to be a bit more deterministic
+4. !AFK tweaks to work for anyone (deprecate !back, allow customization of welcome back message)
+5. Add new features and other fun stuff!
 
 ### To see donkey_bot in action
 

@@ -1,16 +1,18 @@
 import socket
 from settings import HOST, PORT, PASS, IDENTITY, CHANNEL
 
-def open_socket():
-    s = socket.socket()
-    s.connect((HOST, PORT))
-    s.send('PASS {}\r\n'.format(PASS))
-    s.send('NICK {}\r\n'.format(IDENTITY))
-    s.send('JOIN #{}\r\n'.format(CHANNEL))
+class TwitchChatSocket(object):
+    def __init__(self):
+        self.socket = socket.socket()
+        self.socket.connect((HOST, PORT))
+        self.socket.send('PASS {}\r\n'.format(PASS))
+        self.socket.send('NICK {}\r\n'.format(IDENTITY))
+        self.socket.send('JOIN #{}\r\n'.format(CHANNEL))
 
-    return s
+    def recv(self, *args):
+        return self.socket.recv(*args)
 
-def send_message(socket, message):
-    message_temp = 'PRIVMSG #{} :{}\r\n'.format(CHANNEL, message)
-    socket.send(message_temp)
-    print('Sent: {}'.format(message_temp))
+    def send_private_message(self, message):
+        message_temp = 'PRIVMSG #{} :{}\r\n'.format(CHANNEL, message)
+        self.socket.send(message_temp)
+        print('Sent: {}'.format(message_temp))
