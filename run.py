@@ -94,8 +94,15 @@ class DonkeyBot(object):
                 elif re.match('^!title', message.lower()):
                 	if user.lower() == CHANNEL:
                 		tokens = message.split()
-                		r = requests.put('https://api.twitch.tv/kraken/channels/xcouchleaguex', data=json.dumps({'channel': {'status': message[7:], 'delay': 0 }}), headers={'Accept': 'application/vnd.twitchtv.v3+json', 'Authorization': 'OAuth '+STREAM_PASS, 'Content-Type': 'application/json'})
+                		r = requests.put('https://api.twitch.tv/kraken/channels/xcouchleaguex', data=json.dumps({'channel': {'status': message[7:].strip(), 'delay': 0 }}), headers={'Accept': 'application/vnd.twitchtv.v3+json', 'Authorization': 'OAuth '+STREAM_PASS, 'Content-Type': 'application/json'})
                 		self.socket.send_private_message("Ok, I've updated the stream title.");
+                	else:
+                		self.socket.send_private_message("Sorry for the confusion {} That's a command for only {}".format(user, CHANNEL))
+                elif re.match('^!game', message.lower()):
+                	if user.lower() == CHANNEL:
+                		tokens = message.split()
+                		r = requests.put('https://api.twitch.tv/kraken/channels/xcouchleaguex', data=json.dumps({'channel': {'game': message[6:].strip(), 'delay': 0 }}), headers={'Accept': 'application/vnd.twitchtv.v3+json', 'Authorization': 'OAuth '+STREAM_PASS, 'Content-Type': 'application/json'})
+                		self.socket.send_private_message("Ok, I've updated the game we're playing.");
                 	else:
                 		self.socket.send_private_message("Sorry for the confusion {} That's a command for only {}".format(user, CHANNEL))
 
