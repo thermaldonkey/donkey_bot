@@ -3,11 +3,13 @@ import sys
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from random import choice, randrange
+import json
+import requests
 
 from my_socket import TwitchChatSocket
 from initialize import join_room
 from read import get_user, get_message, tokenize_new_data
-from settings import CHANNEL, IDENTITY, POINTS_ALIAS, POINTS_COUNT, ADDED_POINTS, REMOVED_POINTS
+from settings import CHANNEL, IDENTITY, POINTS_ALIAS, POINTS_COUNT, ADDED_POINTS, REMOVED_POINTS, STREAM_PASS
 from db import connect
 from models import Viewer
 
@@ -231,6 +233,13 @@ class DonkeyBot(object):
                             self.socket.send_private_message("{} wanted to throw a peanut at {}, but they're not around. FeelsBadMan".format(user, target))
                     else:
                         self.socket.send_private_message("{} tried to throw a peanut at someone...but they don't have any! BibleThump".format(user))
+                elif re.match('^!title', message.lower()):
+                	if user.lower() == CHANNEL:
+                		tokens = message.split()
+                		r = requests.put('https://api.twitch.tv/kraken/channels/xcouchleaguex', data=json.dumps({'channel': {'status': message[7:], 'delay': 0 }}), headers={'Accept': 'application/vnd.twitchtv.v3+json', 'Authorization': 'OAuth '+STREAM_PASS, 'Content-Type': 'application/json'})
+                		self.socket.send_private_message("Ok, I've updated the stream title.");
+                	else:
+                		self.socket.send_private_message("Sorry for the confusion {} That's a command for only {}".format(user, CHANNEL))
 
 if __name__ == '__main__':
     bot = DonkeyBot()
