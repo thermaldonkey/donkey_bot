@@ -4,6 +4,11 @@ My custom Twitch chat bot
 Experimenting with making custom commands and interactions for myself, rather than selling out and using Nightbot
 or something similar DansGame
 
+### Requirements
+
+1. Python
+2. [python-requests](http://docs.python-requests.org/en/master/)
+
 ### Current priorities
 
 1. Add tests/documentation
