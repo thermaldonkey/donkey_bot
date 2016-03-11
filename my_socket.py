@@ -12,6 +12,10 @@ class TwitchChatSocket(object):
     def recv(self, *args):
         return self.socket.recv(*args)
 
+    def send_pong(self, ping):
+        pong = ping.replace('PING', 'PONG') + '\n'
+        self.socket.send(pong)
+
     def send_private_message(self, message):
         message_temp = 'PRIVMSG #{} :{}\r\n'.format(CHANNEL, message)
         self.socket.send(message_temp)

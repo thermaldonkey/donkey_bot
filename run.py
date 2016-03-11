@@ -35,8 +35,7 @@ class DonkeyBot(object):
         for line in temp:
             print(line)
             if line.startswith('PING'):
-                response = line.replace('PING', 'PONG') + '\n'
-                self.socket.send(response)
+                self.socket.send_pong(line)
             elif self.private_msg.search(line):
                 user = get_user(line)
                 message = get_message(line)
