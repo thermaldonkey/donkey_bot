@@ -2,7 +2,7 @@ import re
 import sys
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from random import choice
+from random import choice, randrange
 
 from my_socket import TwitchChatSocket
 from initialize import join_room
@@ -208,11 +208,29 @@ class DonkeyBot(object):
                                                      # 'Autorization': 'OAuth ' + STREAM_KEY,
                                                      # 'Content-Type': 'application/json'})
                     # print json.loads(response.text)
-                    self.prune_chat_activity(300)
-                    print self.active_chatters
-                    chatters = self.active_chatters.keys()
+                    last_five_mins_chatters = self.prune_chat_activity(300)
+                    chatters = last_five_mins_chatters.keys()
                     winner = choice(chatters)
                     self.socket.send_private_message("{} about to honkey {}'s donkey! HONK!!! Kreygasm".format(user, winner))
+                elif re.match('^!throw', message.lower()):
+                    peanuts = self.get_points(user)
+                    if peanuts:
+                        _, target = message.split()
+                        if target in self.active_chatters.keys():
+                            self.remove_points(user, 1)
+                            roll = randrange(1, 5)
+                            if roll == 1:
+                                self.socket.send_private_message("{} threw a peanut at {}...hit their shoe. WEAK! SwiftRage".format(user, target))
+                            elif roll == 2:
+                                self.socket.send_private_message("{} threw a peanut at {}...body shot! U mad bro?".format(user, target))
+                            elif roll == 3:
+                                self.socket.send_private_message("{} threw a peanut at {}...HEAD SHOT! PogChamp".format(user, target))
+                            elif roll == 4:
+                                self.socket.send_private_message("{} threw a peanut at {}...and missed. FeelsBadMan".format(user, target))
+                        else:
+                            self.socket.send_private_message("{} wanted to throw a peanut at {}, but they're not around. FeelsBadMan".format(user, target))
+                    else:
+                        self.socket.send_private_message("{} tried to throw a peanut at someone...but they don't have any! BibleThump".format(user))
 
 if __name__ == '__main__':
     bot = DonkeyBot()
