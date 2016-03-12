@@ -146,26 +146,34 @@ class DonkeyBot(object):
                     else:
                         self.socket.send_private_message("Sorry for the confusion {} That's a command for only {}".format(user, CHANNEL))
                 elif re.match('^!(points|{})'.format(POINTS_ALIAS), message.lower()):
-                    # Command is customizable by the POINTS_ALIAS setting. Reports calling viewer's total points
-                    points = self.get_points(user)
-                    self.socket.send_private_message(POINTS_COUNT.format(viewer=user, points=points, point_alias=POINTS_ALIAS))
-                elif re.match('^!add', message.lower()):
-                    # Adds points to the given viewer. Only callable by the broadcaster.
-                    if user.lower() == CHANNEL:
-                        _, points, viewer = message.split()
-                        self.add_points(viewer, points)
-                        self.socket.send_private_message(ADDED_POINTS.format(points=points, viewer=viewer, point_alias=POINTS_ALIAS))
+                    tokens = message.split()
+                    modifier = None
+                    if len(tokens) > 1:
+                        iterator = iter(tokens)
+                        iterator.next()
+                        modifier = iterator.next()
+                        args = list(iterator)
+                    if modifier == 'add':
+                        if user.lower() == CHANNEL:
+                            # Adds points to the given viewer. Only callable by the broadcaster.
+                            points, viewer = args
+                            self.add_points(viewer, points)
+                            self.socket.send_private_message(ADDED_POINTS.format(points=points, viewer=viewer, point_alias=POINTS_ALIAS))
+                        else:
+                            self.socket.send_private_message("{} suh dude? You know you can't do that!".format(user))
+                    elif modifier == 'remove':
+                        if user.lower() == CHANNEL:
+                            # Removes points from the given viewer, but will never go below 0 total points.
+                            # Only callable by the broadcaster.
+                            points, viewer = args
+                            self.remove_points(viewer, points)
+                            self.socket.send_private_message(REMOVED_POINTS.format(points=points, viewer=viewer, point_alias=POINTS_ALIAS))
+                        else:
+                            self.socket.send_private_message("{} suh dude? You know you can't do that!".format(user))
                     else:
-                        self.socket.send_private_message("{} suh dude? You know you can't do that!".format(user))
-                elif re.match('^!remove', message.lower()):
-                    # Removes points from the given viewer, but will never go below 0 total points.
-                    # Only callable by the broadcaster.
-                    if user.lower() == CHANNEL:
-                        _, points, viewer = message.split()
-                        self.remove_points(viewer, points)
-                        self.socket.send_private_message(REMOVED_POINTS.format(points=points, viewer=viewer, point_alias=POINTS_ALIAS))
-                    else:
-                        self.socket.send_private_message("{} suh dude? You know you can't do that!".format(user))
+                        # Command is customizable by the POINTS_ALIAS setting. Reports calling viewer's total points
+                        points = self.get_points(user)
+                        self.socket.send_private_message(POINTS_COUNT.format(viewer=user, points=points, point_alias=POINTS_ALIAS))
 
 if __name__ == '__main__':
     bot = DonkeyBot()
