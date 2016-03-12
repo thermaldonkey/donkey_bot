@@ -5,6 +5,7 @@ from my_socket import TwitchChatSocket
 from initialize import join_room
 from read import get_user, get_message, tokenize_new_data
 from settings import CHANNEL
+from db import connect
 
 def check_obj(obj, count):
     if obj:
@@ -19,6 +20,7 @@ class DonkeyBot(object):
     private_msg = re.compile('PRIVMSG #{}'.format(CHANNEL))
 
     def __init__(self):
+        self.session = connect()
         self.afk = False
         self.obj = None
         self.obj_count = 0

@@ -4,6 +4,16 @@ My custom Twitch chat bot
 Experimenting with making custom commands and interactions for myself, rather than selling out and using Nightbot
 or something similar DansGame
 
+### Requirements
+
+1. Python
+2. SQLAlchemy
+
+### Utilities
+
+Use the `reset_db.py` script to drop and rebuild your database (as identified by your DB_URL variable) based on the
+contents of the `models.py` file. Hopefully this works with other databases besides sqlite3.
+
 ### Current priorities
 
 1. Add tests/documentation
