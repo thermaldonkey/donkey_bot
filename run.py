@@ -1,10 +1,13 @@
 import re
 import sys
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from random import choice
 
 from my_socket import TwitchChatSocket
 from initialize import join_room
 from read import get_user, get_message, tokenize_new_data
-from settings import CHANNEL, POINTS_ALIAS, POINTS_COUNT, ADDED_POINTS, REMOVED_POINTS
+from settings import CHANNEL, IDENTITY, POINTS_ALIAS, POINTS_COUNT, ADDED_POINTS, REMOVED_POINTS
 from db import connect
 from models import Viewer
 
@@ -25,9 +28,10 @@ class DonkeyBot(object):
         self.afk = False
         self.obj = None
         self.obj_count = 0
+        self.read_buffer = ''
+        self.active_chatters = {}
         self.socket = TwitchChatSocket()
         join_room(self.socket)
-        self.read_buffer = ''
 
     def get_viewer(self, nickname):
         '''
@@ -84,6 +88,28 @@ class DonkeyBot(object):
         viewer.points = max(viewer.points - int(points), 0)
         self.session.commit()
 
+    def record_chat_activity(self, nickname):
+        '''
+        Updates the given viewer's most recent chat time (stored in memory for now). Ignores the
+        executing bot as well as nightbot.
+
+        @param nickname (str) - Nickname of the viewer
+        '''
+        if nickname not in [IDENTITY, 'nightbot']:
+            now = datetime.now()
+            self.active_chatters[nickname] = now
+
+    def prune_chat_activity(self, seconds):
+        '''
+        Prunes recent chatters mapping based on the given time range. Viewers must have chatted
+        within the given number of seconds in order to be considered active.
+
+        @param seconds (int) - Number of seconds to consider active chat window
+        '''
+        time_zero = datetime.now() - relativedelta(seconds=seconds)
+        self.active_chatters = {
+            chatter: chat_time for chatter, chat_time in self.active_chatters.iteritems() if chat_time > time_zero}
+
     def the_thing_donkey_bot_does(self):
         temp, self.read_buffer = tokenize_new_data(self.socket, self.read_buffer)
 
@@ -98,6 +124,7 @@ class DonkeyBot(object):
                 user = get_user(line)
                 message = get_message(line)
 
+                self.record_chat_activity(user)
                 if re.match('^!afk', message.lower()):
                     if user.lower() == CHANNEL:
                         self.afk = True
@@ -174,6 +201,18 @@ class DonkeyBot(object):
                         # Command is customizable by the POINTS_ALIAS setting. Reports calling viewer's total points
                         points = self.get_points(user)
                         self.socket.send_private_message(POINTS_COUNT.format(viewer=user, points=points, point_alias=POINTS_ALIAS))
+                elif re.match('^!honkey', message.lower()):
+                    # TODO holding onto this in case we want to use it later.
+                    # response = requests.get('https://tmi.twitch.tv/group/user/{}/chatters'.format(CHANNEL),
+                                            # headers={'Accept': 'application/json',
+                                                     # 'Autorization': 'OAuth ' + STREAM_KEY,
+                                                     # 'Content-Type': 'application/json'})
+                    # print json.loads(response.text)
+                    self.prune_chat_activity(300)
+                    print self.active_chatters
+                    chatters = self.active_chatters.keys()
+                    winner = choice(chatters)
+                    self.socket.send_private_message("{} about to honkey {}'s donkey! HONK!!! Kreygasm".format(user, winner))
 
 if __name__ == '__main__':
     bot = DonkeyBot()
