@@ -30,6 +30,8 @@ class DonkeyBot(object):
         self.obj_count = 0
         self.read_buffer = ''
         self.active_chatters = {}
+        self.current_bet = []
+        self.betting_users = {}
         self.socket = TwitchChatSocket()
         join_room(self.socket)
 
@@ -230,8 +232,49 @@ class DonkeyBot(object):
                         else:
                             self.socket.send_private_message("{} wanted to throw a peanut at {}, but they're not around. FeelsBadMan".format(user, target))
                     else:
-                        self.socket.send_private_message("{} tried to throw a peanut at someone...but they don't have any! BibleThump".format(user))
-
+                        self.socket.send_private_message("{} tried to throw a peanut at someone...but they don't have any! BibleThump".format(user)
+                elif re.match('^!bet', message.lower()): #Usage: !bet <choice> <wager>
+                    _, choice, wager = message.split()
+                    wager, choice = int(wager), int(choice)-1
+                    if self.betting_users[user] == None:
+                        if wager <= self.get_points(user):
+                            self.socket.send_private_message("{} placed a bet on \"{}\" for {}!".format(user, self.current_bet[choice-1], wager))
+                            self.betting_users[user] = [choice, wager]
+                            self.remove_points(user, wager)
+                        else:
+                            self.socket.send_private_message("{} doesn't have {} peanuts!".format(user, wager))
+                    else:
+                        self.socket.send_private_message("{} has already placed a bet!".format(user))
+                elif re.match('^!bet_status', message.lower()): #Usage: !bet_status
+                    if self.betting_users[user] == None:
+                        self.socket.send_private_message("{} has not placed a bet yet!".format(user))
+                    else:
+                        self.socket.send_private_message("{} has {} peanuts on \"{}\".".format(user, self.betting_users[user][1], self.current_bet[self.betting_users[user][0]]))
+                elif re.match('^!start_bet', message.lower()): #Usage: !start_bet <bet_condition_1> [ bet_condition_2 [ .. ] ] 
+                    if user == CHANNEL:
+                        if self.current_bet == []:
+                            self.current_bet = message.split()[1::]
+                            bet_options_list = '\n'.join(["{}.) {}".format(i+1,self.current_bet[i].replace('_',' ')) for i in range(len(self.current_bet))])
+                            self.socket.send_private_message("There is a new bet! Here are the options: \n{}".format(bet_options_list))
+                        else:
+                            self.socket.send_private_message("There's already a bet going! End the current bet to start a new one.")
+                    else:
+                        self.socket.send_private_message("Ayyyy boi, that's {}'s command! SwiftRage".format(CHANNEL))
+                elif re.match('^!end_bet', message.lower()): #Usage: !end_bet <winning_choice>
+                    if user == CHANNEL:
+                        if self.current_bet == []:
+                            self.socket.send_private_message("There is no bet going on!")
+                        else:
+                            _, winning_choice = message.split()
+                            winning_choice = int(winning_choice)-1
+                            self.socket.send_private_message("Bets on \"{}\" are doubled!".format(self.current_bet[winning_choice]))
+                            for better in self.betting_users:
+                                if self.betting_users[better][0] == winning_choice:
+                                    self.add_points(better, self.betting_users[better][1] * 2)
+                            self.current_bet = []
+                            self.betting_users = {}
+                    else:
+                        self.socket.send_private_message("Ayyyy boi, that's {}'s command! SwiftRage".format(CHANNEL))
 if __name__ == '__main__':
     bot = DonkeyBot()
     while True:
