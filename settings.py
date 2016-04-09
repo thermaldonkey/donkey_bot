@@ -15,3 +15,5 @@ ADDED_POINTS = "Gave {viewer} {points} more {point_alias}"
 # Response string for removing points from a viewer. Interpolations are required but everything else
 # is fair game to change!
 REMOVED_POINTS = "Took {points} {point_alias} away from {viewer}"
+# FOR !title AND !game COMMANDS
+STREAM_PASS = '' # OAuth key (For streamer.. not bot. Requires channel_editor scope)

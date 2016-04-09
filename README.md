@@ -8,6 +8,7 @@ or something similar DansGame
 
 1. Python
 2. SQLAlchemy
+3. [python-requests](http://docs.python-requests.org/en/master/)
 
 ### Utilities
 
