@@ -18,9 +18,11 @@ contents of the `models.py` file. Hopefully this works with other databases besi
 
 1. Add tests/documentation
 2. Organize commands into those only the broadcaster can use vs public commands
-3. Codify Twitch IRC message formats to allow the system to be a bit more deterministic
-4. !AFK tweaks to work for anyone (deprecate !back, allow customization of welcome back message)
-5. Add new features and other fun stuff!
+3. Quotes commands (one to enter a new one, one to post a random saved quote)
+4. Gambling system (broadcaster enables buckets, which creates new commands. viewers wager points in buckets of their choice)
+5. Codify Twitch IRC message formats to allow the system to be a bit more deterministic
+6. !AFK tweaks to work for anyone (deprecate !back, allow customization of welcome back message)
+7. Add new features and other fun stuff!
 
 ### To see donkey_bot in action
 

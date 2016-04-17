@@ -15,3 +15,4 @@ ADDED_POINTS = "Gave {viewer} {points} more {point_alias}"
 # Response string for removing points from a viewer. Interpolations are required but everything else
 # is fair game to change!
 REMOVED_POINTS = "Took {points} {point_alias} away from {viewer}"
+TRANSFERRED_POINTS = "{giver} gave {points} {point_alias} to {receiver}!"
